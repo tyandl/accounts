@@ -1,0 +1,1 @@
+A simple password store that utilizes bcrypt to hash passwords with individual salts. The password store is backed by a leveldb and data is stored in json format. The data stored on a user is intentenally sparse. It should be used only to authenticate users, any additional information should be stored in a separate database.
