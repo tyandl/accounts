@@ -35,8 +35,7 @@ type Accounts struct {
 }
 
 // load an existing password store at path, specify the number of seconds before a password
-// should expire, the number of consecutive failed logins before an account locks, and a
-// function to allow out-of-band password transmission.
+// should expire, the number of consecutive failed logins before an account locks.
 func NewAccounts(path string, exp int64, fails int) (*Accounts, error) {
 	// set up access to the accounts DB
 	db, err := leveldb.OpenFile(path, nil)
@@ -172,17 +171,19 @@ func (a *Accounts) CreateAccount(username, email, passwd string, level int) (str
 		return "", errors.New("Invalid email address")
 	}
 
-	pass := ""
+	var cr credentials
 	var err error
+	var pass string
 	if passwd != "" {
-		pass = passwd
-	} else {
-		pass, err = GenPassword(12)
-		if err != nil {
+		cr, err = newCredentials([]byte(passwd), false)
+		pass = ""
+	} else{
+		if pass, err = GenPassword(12); err != nil {
 			return "", errors.New("Could not generate temporary password")
+		} else {
+			cr, err = newCredentials([]byte(pass), false)
 		}
 	}
-	cr, err := newCredentials([]byte(pass), true)
 	if err != nil {
 		return "", err
 	}

@@ -1,7 +1,6 @@
 package accounts
 
 import (
-	"errors"
 )
 
 // Account keeps some information on a user. if additional information is required,
@@ -35,19 +34,14 @@ type accountInfo struct {
 	Fails int
 }
 
-// Changes the specified user's password, user must provide old password,
-// but the expiration is not checked. It is the caller's duty to verify that the
+// Changes the specified user's password, It is the caller's duty to verify that the
 // new password meets their business rules (i.e is a strong enough password). As far as
 // this library is concerned, any printable character is valid
 // (unprintable characters are untested but may work))
-func (a *Account) ChangePassword(oldPwd, newPwd string) error {
-	// compare hashes.
-	if a.Current.check([]byte(oldPwd)) != nil {
-		return errors.New("Invalid")
-	}
+func (a *Account) ChangePassword(newPwd string) error {
 	var err error
 	a.Previous = []credentials{a.Current}
-	a.Current, err = newCredentials([]byte(newPwd), true)
+	a.Current, err = newCredentials([]byte(newPwd), false)
 	if err != nil {
 		return err
 	}
